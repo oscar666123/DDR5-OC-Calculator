@@ -86,3 +86,7 @@ VSOC = 1.25V
 ## 使用建议
 
 2x32GB Dual Rank 优先关注 tRFC、tREFI 和温度。6200 需要更好 IMC，6400 属于高风险。出错时优先回退 tRFC、tREFI、VDDIO、VSOC。
+
+## 作者
+
+GitHub: [@oscar666123](https://github.com/oscar666123)

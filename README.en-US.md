@@ -87,3 +87,7 @@ VSOC = 1.25V
 ## Recommendation
 
 For 2x32GB Dual Rank, focus on tRFC, tREFI, and DIMM temperature. 6200 requires a stronger IMC, and 6400 is high risk. Roll back tRFC, tREFI, VDDIO, and VSOC first when errors appear.
+
+## Author
+
+GitHub: [@oscar666123](https://github.com/oscar666123)
