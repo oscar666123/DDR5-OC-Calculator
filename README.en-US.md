@@ -1,17 +1,20 @@
 # DDR5 OC Calculator
 
-A local Windows desktop DDR5 overclocking calculator for SK hynix DDR5 A-die / M-die. It generates BIOS memory tuning suggestions from the selected platform, IC, capacity, rank, target frequency, cooling condition, and voltage strategy.
+A local Windows desktop DDR5 overclocking calculator for SK hynix DDR5 A-die / M-die. It reads Windows WMI/CIM hardware information and fills editable BIOS parameter fields directly.
 
 ## Features
 
 - PySide6 desktop GUI
+- Automatic CPU, motherboard, BIOS, memory capacity, and configured memory speed detection on startup
+- ZenTimings OCR text, TXT, CSV, and JSON import
+- BIOS parameter editor layout with manually editable fields
 - Primary, secondary, and tertiary timing recommendations
 - Voltage recommendations
-- Timing cycles and ns latency display
-- Risk score, risk explanation, and stability test flow
-- Copy BIOS parameters
-- Export TXT result
-- Save and load JSON profiles
+- Compact top risk status bar
+- Short bottom testing advice
+- Copy current BIOS parameter fields
+- Export TXT / JSON
+- Save and load JSON configs
 - PyInstaller Windows executable packaging
 
 ## Run From Source
@@ -38,6 +41,21 @@ dist\DDR5OCCalculator\DDR5OCCalculator.exe
 release\DDR5OCCalculator-windows-x64.zip
 ```
 
+## Automatic Detection
+
+The app uses PowerShell `Get-CimInstance` to read:
+
+- `Win32_Processor`
+- `Win32_BaseBoard`
+- `Win32_BIOS`
+- `Win32_PhysicalMemory`
+
+If detection fails, the top fields show fallback text and remain manually editable. Platform, kit type, target frequency, and IC profile can be selected manually.
+
+## ZenTimings Import
+
+The “Import ZenTimings” action accepts OCR text, TXT, CSV, and JSON. It parses MCLK, UCLK, FCLK, primary timings, secondary timings, and voltages, then fills matching BIOS parameter fields.
+
 ## Supported Scope
 
 - Hynix 16Gb A-die
@@ -47,24 +65,25 @@ release\DDR5OCCalculator-windows-x64.zip
 - AMD AM5
 - Intel DDR5
 
-4-DIMM, dual-rank, and double-sided configurations automatically increase risk and relax selected timings. High-temperature profiles reduce tREFI, increase tRFC, and emit warnings.
+`2x32GB + 16Gb A-die` automatically switches to the `Hynix 16Gb A-die 2x32GB Dual Rank` profile. For AM5 2x32GB A-die, start with `6000 Daily`.
 
-## 2x32GB A-die Profile
+## Copy Format
 
-Selecting `Hynix 16Gb A-die 2x32GB Dual Rank`, or selecting `2x32GB + 16Gb A-die`, enables the dedicated profile:
+```text
+Memory Frequency = 6000
+MCLK = 3000
+UCLK = 3000
+FCLK = 2000
 
-- Total capacity: 64GB
-- Module capacity: 32GB
-- Rank: Dual Rank
-- Side: Double Sided
-- IC density: 16Gb
-- Profile type: 1DPC 2 DIMM
-- AM5 daily target: 6000 MT/s
+tCL = 30
+tRCD = 38
+tRP = 38
+tRAS = 50
 
-This profile uses a dedicated tRFC, tREFI, tRRD_L, tFAW, and SD/DD tertiary timing model. AM5 6200/6400 are treated as advanced and high-risk profiles. AM5 targets above 6400 are automatically rolled back to 6200. `4x32GB + A-die` enters a high-risk profile and rolls back to a 5600 Safe-style target.
-
-`app/reference_notes.py` stores reference notes and usage guidance for profiles. These notes are descriptive program context. Stability still depends on local CPU IMC quality, motherboard BIOS, memory cooling, and real stress testing.
+DRAM VDD = 1.38V
+VSOC = 1.25V
+```
 
 ## Recommendation
 
-For AM5 2x32GB A-die, start with `6000 Daily`. Treat 6200/6400 as validation targets requiring CPU IMC, BIOS, and DIMM cooling support.
+For 2x32GB Dual Rank, focus on tRFC, tREFI, and DIMM temperature. 6200 requires a stronger IMC, and 6400 is high risk. Roll back tRFC, tREFI, VDDIO, and VSOC first when errors appear.

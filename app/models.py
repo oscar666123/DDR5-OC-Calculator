@@ -89,3 +89,48 @@ class RecommendationResult:
     stability_steps: list[str] = field(default_factory=list)
     tuning_advice: list[str] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
+
+
+@dataclass(slots=True)
+class MemoryModuleInfo:
+    slot: str = ""
+    bank: str = ""
+    memory_manufacturer: str = ""
+    part_number: str = ""
+    capacity_gb: int = 0
+    speed: int = 0
+    configured_speed: int = 0
+    memory_type: str = ""
+    form_factor: str = ""
+    data_width: int = 0
+    total_width: int = 0
+    serial_number: str = ""
+
+
+@dataclass(slots=True)
+class HardwareInfo:
+    cpu_name: str = ""
+    cpu_vendor: str = ""
+    cpu_max_clock: int = 0
+    cpu_cores: int = 0
+    cpu_threads: int = 0
+    motherboard_manufacturer: str = ""
+    motherboard_product: str = ""
+    motherboard_version: str = ""
+    bios_manufacturer: str = ""
+    bios_version: str = ""
+    bios_release_date: str = ""
+    memory_modules: list[MemoryModuleInfo] = field(default_factory=list)
+    memory_module_count: int = 0
+    total_capacity_gb: int = 0
+    module_capacity_gb: int = 0
+    configured_speed: int = 0
+    kit_type: str = ""
+    is_ddr5: bool = False
+    detection_error: str = ""
+
+    def memory_summary(self) -> str:
+        if self.total_capacity_gb and self.kit_type:
+            speed = f" / {self.configured_speed} MT/s" if self.configured_speed else ""
+            return f"{self.total_capacity_gb}GB / {self.kit_type}{speed}"
+        return "自动读取失败，可手动填写"

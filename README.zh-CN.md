@@ -1,15 +1,18 @@
 # DDR5 OC Calculator
 
-Windows 本地 DDR5 内存超频计算器，面向 SK hynix DDR5 A-die / M-die。程序根据平台、颗粒、容量、Rank、目标频率、散热和电压策略生成 BIOS 参数建议。
+Windows 本地 DDR5 内存超频计算器，面向 SK hynix DDR5 A-die / M-die。程序读取 Windows WMI/CIM 硬件信息，并把推荐 BIOS 参数直接填入可编辑输入框。
 
 ## 功能
 
 - PySide6 桌面界面
+- 启动后自动读取 CPU、主板、BIOS、内存容量和当前内存频率
+- 支持导入 ZenTimings OCR 文本、TXT、CSV、JSON
+- BIOS 参数编辑器布局，每个参数都可手动覆盖
 - 主时序、副时序、三时序、电压建议
-- cycles 与 ns 延迟同时显示
-- 风险评分、风险解释、稳定性测试流程
-- 复制 BIOS 参数
-- 导出 TXT
+- 顶部风险状态条
+- 底部简短测试建议
+- 复制当前参数框
+- 导出 TXT / JSON
 - 保存 / 读取 JSON 配置
 - PyInstaller 打包 Windows 可执行程序
 
@@ -37,6 +40,21 @@ dist\DDR5OCCalculator\DDR5OCCalculator.exe
 release\DDR5OCCalculator-windows-x64.zip
 ```
 
+## 自动读取
+
+程序使用 PowerShell `Get-CimInstance` 读取：
+
+- `Win32_Processor`
+- `Win32_BaseBoard`
+- `Win32_BIOS`
+- `Win32_PhysicalMemory`
+
+读取失败时，顶部字段会显示“自动读取失败，可手动填写”。平台、套条、目标频率和 IC Profile 均可手动选择。
+
+## ZenTimings 导入
+
+“导入 ZenTimings”支持 OCR 文本、TXT、CSV、JSON。程序会识别 MCLK、UCLK、FCLK、主时序、副时序和电压字段，并直接填入对应参数框。
+
 ## 支持范围
 
 - Hynix 16Gb A-die
@@ -46,24 +64,25 @@ release\DDR5OCCalculator-windows-x64.zip
 - AMD AM5
 - Intel DDR5
 
-4 DIMM、Dual Rank、双面内存会自动提高风险并放宽部分参数。AM5 6400+ 会提示验证 UCLK=MCLK，6600+ 会提高分频风险。高温场景会降低 tREFI、提高 tRFC，并在输出中给出警告。
+`2x32GB + 16Gb A-die` 会自动切换到 `Hynix 16Gb A-die 2x32GB Dual Rank` profile。AM5 2x32GB A-die 建议从 `6000 Daily` 开始测试。
 
-## 2x32GB A-die Profile
+## 复制格式
 
-选择 `Hynix 16Gb A-die 2x32GB Dual Rank`，或选择 `2x32GB + 16Gb A-die`，程序会自动切换到专用 profile：
+```text
+Memory Frequency = 6000
+MCLK = 3000
+UCLK = 3000
+FCLK = 2000
 
-- Total capacity: 64GB
-- Module capacity: 32GB
-- Rank: Dual Rank
-- Side: Double Sided
-- IC density: 16Gb
-- Profile type: 1DPC 2 DIMM
-- AM5 daily target: 6000 MT/s
+tCL = 30
+tRCD = 38
+tRP = 38
+tRAS = 50
 
-该 profile 使用独立的 tRFC、tREFI、tRRD_L、tFAW 和 SD/DD 三时序模型。AM5 6200/6400 会按进阶和高风险路径处理，AM5 高于 6400 会自动回退到 6200。`4x32GB + A-die` 会进入高风险 profile，并自动降到 5600 Safe 思路。
-
-`app/reference_notes.py` 记录每个 profile 的资料来源和使用说明。这些 notes 是程序说明资料，稳定性仍需按本机 CPU IMC、主板 BIOS、内存散热和实际测试结果验证。
+DRAM VDD = 1.38V
+VSOC = 1.25V
+```
 
 ## 使用建议
 
-AM5 2x32GB A-die 建议从 `6000 Daily` 开始测试。6200/6400 需要 IMC、主板 BIOS 和内存散热共同支持。
+2x32GB Dual Rank 优先关注 tRFC、tREFI 和温度。6200 需要更好 IMC，6400 属于高风险。出错时优先回退 tRFC、tREFI、VDDIO、VSOC。

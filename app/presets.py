@@ -39,20 +39,20 @@ HYNIX_ADIE_2X32_AM5_PRESETS = {
     },
     "Daily": {
         "frequency": 6000,
-        "primary": {"tCL": 30, "tRCD": 38, "tRP": 38, "tRAS": 44},
-        "secondary": {"tWR": 48, "tRTP": 12, "tRFC": 580, "tRFC2": 460, "tRFCsb": 360, "tRRD_S": 6, "tRRD_L": 10, "tFAW": 28, "tWTR_S": 6, "tWTR_L": 16},
+        "primary": {"tCL": 30, "tRCD": 38, "tRP": 38, "tRAS": 50},
+        "secondary": {"tWR": 48, "tRTP": 12, "tRFC": 580, "tRFC2": 460, "tRFCsb": 360, "tRRD_S": 6, "tRRD_L": 12, "tFAW": 32, "tWTR_S": 6, "tWTR_L": 16},
         "tertiary": {"tRDRDSCL": 6, "tWRWRSCL": 6, "tRDRDSC": 1, "tWRWRSC": 1, "tRDRDSD": 8, "tRDRDDD": 8, "tWRWRSD": 10, "tWRWRDD": 10},
     },
     "Performance": {
         "frequency": 6200,
-        "primary": {"tCL": 32, "tRCD": 40, "tRP": 40, "tRAS": 46},
-        "secondary": {"tWR": 52, "tRTP": 12, "tRFC": 620, "tRFC2": 480, "tRFCsb": 380, "tRRD_S": 8, "tRRD_L": 12, "tFAW": 32, "tWTR_S": 6, "tWTR_L": 16},
+        "primary": {"tCL": 30, "tRCD": 40, "tRP": 40, "tRAS": 52},
+        "secondary": {"tWR": 56, "tRTP": 12, "tRFC": 620, "tRFC2": 500, "tRFCsb": 400, "tRRD_S": 8, "tRRD_L": 12, "tFAW": 32, "tWTR_S": 6, "tWTR_L": 16},
         "tertiary": {"tRDRDSCL": 6, "tWRWRSCL": 6, "tRDRDSC": 1, "tWRWRSC": 1, "tRDRDSD": 8, "tRDRDDD": 8, "tWRWRSD": 10, "tWRWRDD": 10},
     },
     "Benchmark": {
         "frequency": 6400,
-        "primary": {"tCL": 34, "tRCD": 42, "tRP": 42, "tRAS": 50},
-        "secondary": {"tWR": 56, "tRTP": 12, "tRFC": 660, "tRFC2": 520, "tRFCsb": 420, "tRRD_S": 8, "tRRD_L": 12, "tFAW": 32, "tWTR_S": 6, "tWTR_L": 16},
+        "primary": {"tCL": 32, "tRCD": 42, "tRP": 42, "tRAS": 56},
+        "secondary": {"tWR": 56, "tRTP": 12, "tRFC": 680, "tRFC2": 540, "tRFCsb": 440, "tRRD_S": 8, "tRRD_L": 12, "tFAW": 32, "tWTR_S": 6, "tWTR_L": 16},
         "tertiary": {"tRDRDSCL": 8, "tWRWRSCL": 8, "tRDRDSC": 1, "tWRWRSC": 1, "tRDRDSD": 8, "tRDRDDD": 8, "tWRWRSD": 10, "tWRWRDD": 10},
     },
 }

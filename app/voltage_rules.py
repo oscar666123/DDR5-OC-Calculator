@@ -142,14 +142,14 @@ def calculate_hynix_adie_2x32_voltages(config: InputConfig) -> tuple[list[Voltag
             vddp = "Auto / 0.95-1.05V"
         elif freq <= 6000:
             dram = 1.38
-            vddio = 1.32
-            vsoc = 1.23
-            vddp = "Auto / 1.00-1.05V"
+            vddio = 1.30
+            vsoc = 1.25
+            vddp = "Auto / 1.05V"
         elif freq <= 6200:
-            dram = 1.41
-            vddio = 1.36
+            dram = 1.40
+            vddio = 1.35
             vsoc = 1.28
-            vddp = "Auto / 1.00-1.05V"
+            vddp = "Auto / 1.05V"
         else:
             dram = 1.44
             vddio = 1.40

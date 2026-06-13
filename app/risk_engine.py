@@ -34,6 +34,8 @@ def dual_rank_capacity_risk(config: InputConfig) -> tuple[int, list[str]]:
     score = 0
     explanations: list[str] = []
     if is_hynix_adie_2x32_profile(config):
+        score += 10
+        explanations.append("2x32GB A-die Dual Rank 按大容量日用验证 profile 计入基础风险。")
         score += 8
         explanations.append("64GB 2x32GB 容量增加训练压力和 refresh 敏感度。")
         if config.target_frequency >= 6200:
@@ -164,3 +166,12 @@ def calculate_risk(
     if not explanations:
         explanations.append("频率、电压、温度和 Rank 组合处于低风险区间。")
     return score, _risk_level(score), explanations
+
+
+def summarize_risk(score: int, level: str, explanations: list[str]) -> dict[str, object]:
+    return {
+        "score": score,
+        "level": level,
+        "reason": explanations[0] if explanations else "当前参数处于可测试区间。",
+        "reasons": explanations[:5],
+    }

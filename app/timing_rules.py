@@ -431,3 +431,33 @@ def calculate_recommendation(config: InputConfig) -> RecommendationResult:
         tuning_advice=BASE_TUNING_ADVICE,
         warnings=warnings,
     )
+
+
+def recommendation_to_bios_fields(result: RecommendationResult) -> dict[str, str]:
+    fields: dict[str, str] = {}
+    config = result.config
+    fields["Memory Frequency"] = str(config.target_frequency)
+    fields["MCLK"] = str(config.target_frequency // 2)
+    if config.platform == "AMD AM5":
+        fields["UCLK"] = str(config.target_frequency // 2)
+        fields["FCLK"] = "2000" if config.target_frequency <= 6000 else "2066" if config.target_frequency <= 6200 else "2133"
+    else:
+        fields["UCLK"] = "Auto"
+        fields["FCLK"] = "Auto"
+
+    for entry in result.primary + result.secondary + result.tertiary:
+        fields[entry.name] = str(entry.cycles)
+    for voltage in result.voltages:
+        name = "CPU VDDIO" if voltage.name == "CPU VDDIO / VDDIO MEM" else voltage.name
+        fields[name] = voltage.value
+
+    fields.setdefault("tRDWR", "Auto")
+    fields.setdefault("tWRRD", "Auto")
+    fields.setdefault("VDDP", "Auto / 1.05V")
+    fields.setdefault("VPP", "Auto / 1.80V")
+    return fields
+
+
+def calculate_bios_parameters(config: InputConfig) -> tuple[RecommendationResult, dict[str, str]]:
+    result = calculate_recommendation(config)
+    return result, recommendation_to_bios_fields(result)

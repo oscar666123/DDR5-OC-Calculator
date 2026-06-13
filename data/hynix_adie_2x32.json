@@ -1,0 +1,12 @@
+{
+  "profile": "Hynix 16Gb A-die 2x32GB Dual Rank",
+  "daily_target": 6000,
+  "rank": "Dual Rank",
+  "side": "Double Sided",
+  "ic_density": "16Gb",
+  "notes": [
+    "AM5 daily target starts at 6000 MT/s.",
+    "6200 requires stronger IMC validation.",
+    "6400 is high risk and requires DIMM airflow."
+  ]
+}
