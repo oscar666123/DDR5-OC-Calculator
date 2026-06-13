@@ -1,0 +1,15 @@
+{
+  "name": "SK hynix DDR5 M-die",
+  "supported_die_types": ["16Gb M-die", "24Gb M-die"],
+  "frequency_character": "16Gb M-die fits 6000-7000. 24Gb M-die fits 2x24GB and favors conservative tRCD/tRP/tRFC.",
+  "tRFC_ranges": {
+    "16Gb A-die": [420, 500],
+    "16Gb M-die": [460, 540],
+    "24Gb M-die": [500, 600]
+  },
+  "recommended_tRFC_floor": 500,
+  "safe_bounds": {
+    "tRFC_min": 380,
+    "tREFI_daily_high_temp_max": 32768
+  }
+}

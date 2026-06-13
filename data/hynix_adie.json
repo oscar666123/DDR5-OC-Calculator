@@ -1,0 +1,15 @@
+{
+  "name": "SK hynix 16Gb A-die",
+  "supported_die_types": ["16Gb A-die"],
+  "frequency_character": "High frequency headroom, suitable for 6800-8000+ with strong IMC and board.",
+  "tRFC_ranges": {
+    "16Gb A-die": [420, 500],
+    "16Gb M-die": [460, 540],
+    "24Gb M-die": [500, 600]
+  },
+  "recommended_tRFC_floor": 440,
+  "safe_bounds": {
+    "tRFC_min": 330,
+    "tREFI_daily_high_temp_max": 32768
+  }
+}

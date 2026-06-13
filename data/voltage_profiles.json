@@ -1,0 +1,21 @@
+{
+  "common": {
+    "VDD_base": "1.10V",
+    "VDDQ_base": "1.10V",
+    "VPP": "Auto / 1.80V"
+  },
+  "cooling_caps": {
+    "no_fan": "1.40V",
+    "case_airflow": "1.45V",
+    "direct_memory_fan": "1.50V"
+  },
+  "amd_am5": {
+    "VSOC_daily_cap": "1.30V",
+    "VDDP": "Auto / 1.05V"
+  },
+  "intel_ddr5": {
+    "CPU_VDDQ": "1.20-1.40V",
+    "VCCSA": "1.15-1.35V",
+    "CPU_VDD2": "1.25-1.45V"
+  }
+}
