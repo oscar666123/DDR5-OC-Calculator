@@ -66,6 +66,19 @@ release\DDR5OCCalculator-windows-x64.zip
 
 `2x32GB + 16Gb A-die` 会自动切换到 `Hynix 16Gb A-die 2x32GB Dual Rank` profile。AM5 2x32GB A-die 建议从 `6000 Daily` 开始测试。
 
+## AM5 电压逻辑
+
+AM5 CPU 相关电压会按目标频率、套条容量、Rank、散热和电压策略计算：
+
+- 6000 Daily：VSOC 1.25V，CPU VDDIO 1.30V
+- 6200 Performance：VSOC 1.25V，CPU VDDIO 1.35V
+- 6400 High Risk：VSOC 1.28V，CPU VDDIO 1.38V
+- VDDP 默认 `Auto / 1.05V`
+- VDDG CCD / VDDG IOD 默认 `Auto`
+- VSOC 程序硬上限为 1.30V
+
+VSOC 高于 1.30V 会标红并提示高风险。无主动内存风扇时，DRAM VDD / VDDQ 不会自动推荐超过 1.40V。2x32GB A-die 推荐先测试 6000 Daily。
+
 ## 复制格式
 
 ```text

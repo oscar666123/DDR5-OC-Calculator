@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from app.models import InputConfig
+from app.presets import HYNIX_ADIE_2X32_DISPLAY, HYNIX_ADIE_2X32_INTERNAL
 
 
 class ValidationError(ValueError):
@@ -19,7 +20,7 @@ def parse_frequency(value: str) -> int:
 
 
 def normalize_config(config: InputConfig) -> InputConfig:
-    if config.memory_ic == "Hynix 16Gb A-die 2x32GB Dual Rank" and config.kit != "4x32GB":
+    if config.memory_ic in {HYNIX_ADIE_2X32_DISPLAY, HYNIX_ADIE_2X32_INTERNAL} and config.kit != "4x32GB":
         config.die_type = "16Gb A-die"
         config.kit = "2x32GB"
         config.dimm_capacity = "32GB"
@@ -32,7 +33,10 @@ def normalize_config(config: InputConfig) -> InputConfig:
         config.sides = "双面"
 
     if is_hynix_adie_2x32_profile(config):
-        config.memory_ic = "Hynix 16Gb A-die 2x32GB Dual Rank"
+        config.memory_ic = HYNIX_ADIE_2X32_DISPLAY
+        config.profile_display_name = HYNIX_ADIE_2X32_DISPLAY
+        config.ic_vendor = "SK hynix"
+        config.ic_type = "A-die"
         config.die_type = "16Gb A-die"
         config.dimm_capacity = "32GB"
         config.rank = "Dual Rank"
@@ -48,13 +52,16 @@ def normalize_config(config: InputConfig) -> InputConfig:
         config.die_type = "24Gb M-die"
         config.memory_ic = "Hynix M-die"
 
-    if config.die_type == "16Gb A-die" and config.memory_ic != "Hynix 16Gb A-die 2x32GB Dual Rank":
+    if config.die_type == "16Gb A-die" and config.memory_ic not in {HYNIX_ADIE_2X32_DISPLAY, HYNIX_ADIE_2X32_INTERNAL}:
         config.memory_ic = "Hynix A-die"
 
     if config.die_type in {"16Gb M-die", "24Gb M-die"}:
         config.memory_ic = "Hynix M-die"
 
     if is_hynix_adie_4x32_profile(config):
+        config.profile_display_name = "Hynix A-die 4x32GB High Risk"
+        config.ic_vendor = "SK hynix"
+        config.ic_type = "A-die"
         config.die_type = "16Gb A-die"
         config.dimm_capacity = "32GB"
         config.rank = "Dual Rank"
@@ -96,7 +103,7 @@ def is_hynix_adie_2x32_profile(config: InputConfig) -> bool:
     return (
         config.kit == "2x32GB"
         and config.die_type == "16Gb A-die"
-        and config.memory_ic in {"Hynix A-die", "Hynix 16Gb A-die 2x32GB Dual Rank"}
+        and config.memory_ic in {"Hynix A-die", HYNIX_ADIE_2X32_DISPLAY, HYNIX_ADIE_2X32_INTERNAL}
     )
 
 
@@ -104,7 +111,7 @@ def is_hynix_adie_4x32_profile(config: InputConfig) -> bool:
     return (
         config.kit == "4x32GB"
         and config.die_type == "16Gb A-die"
-        and config.memory_ic in {"Hynix A-die", "Hynix 16Gb A-die 2x32GB Dual Rank"}
+        and config.memory_ic in {"Hynix A-die", HYNIX_ADIE_2X32_DISPLAY, HYNIX_ADIE_2X32_INTERNAL}
     )
 
 

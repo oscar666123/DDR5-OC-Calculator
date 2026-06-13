@@ -67,6 +67,19 @@ The “Import ZenTimings” action accepts OCR text, TXT, CSV, and JSON. It pars
 
 `2x32GB + 16Gb A-die` automatically switches to the `Hynix 16Gb A-die 2x32GB Dual Rank` profile. For AM5 2x32GB A-die, start with `6000 Daily`.
 
+## AM5 Voltage Logic
+
+AM5 CPU-related voltages are calculated from target frequency, kit capacity, rank, cooling, and voltage policy:
+
+- 6000 Daily: VSOC 1.25V, CPU VDDIO 1.30V
+- 6200 Performance: VSOC 1.25V, CPU VDDIO 1.35V
+- 6400 High Risk: VSOC 1.28V, CPU VDDIO 1.38V
+- VDDP defaults to `Auto / 1.05V`
+- VDDG CCD / VDDG IOD default to `Auto`
+- VSOC has a program hard ceiling of 1.30V
+
+VSOC above 1.30V is marked red as high risk. Without active DIMM airflow, DRAM VDD / VDDQ are capped at 1.40V for automatic recommendations. For 2x32GB A-die, start with 6000 Daily.
+
 ## Copy Format
 
 ```text

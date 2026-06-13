@@ -12,6 +12,6 @@ HYNIX_ADIE_2X32_DUAL_RANK_NOTES = [
 
 
 def get_reference_notes(profile_name: str) -> list[str]:
-    if profile_name == "Hynix 16Gb A-die 2x32GB Dual Rank":
+    if profile_name in {"Hynix 16Gb A-die 2x32GB Dual Rank", "Hynix A-die 2x32GB Dual Rank"}:
         return list(HYNIX_ADIE_2X32_DUAL_RANK_NOTES)
     return []

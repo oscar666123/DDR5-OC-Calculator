@@ -15,6 +15,14 @@ def _format_v(value: float) -> str:
     return f"{value:.2f}V"
 
 
+def _voltage_risk(value: float, warning: float, high: float) -> str:
+    if value > high:
+        return "高风险"
+    if value > warning:
+        return "偏高"
+    return "正常"
+
+
 def _cooling_cap(config: InputConfig) -> float:
     if config.cooling == "无风扇":
         return 1.40
@@ -130,6 +138,66 @@ def calculate_voltages(config: InputConfig) -> tuple[list[VoltageEntry], list[st
     return entries, warnings
 
 
+def calculate_am5_cpu_voltages(
+    cpu_name: str,
+    target_frequency: int,
+    kit: str,
+    rank: str,
+    cooling: str,
+    voltage_policy: str,
+) -> dict[str, object]:
+    if target_frequency <= 5600:
+        vsoc = 1.15
+        vddio = 1.23
+    elif target_frequency <= 6000:
+        vsoc = 1.25 if "9700X" in cpu_name.upper() and kit == "2x32GB" else 1.22
+        vddio = 1.30 if kit == "2x32GB" else 1.28
+    elif target_frequency <= 6200:
+        vsoc = 1.25
+        vddio = 1.35 if kit == "2x32GB" else 1.32
+    elif target_frequency <= 6400:
+        vsoc = 1.28
+        vddio = 1.38 if kit == "2x32GB" else 1.36
+    else:
+        vsoc = 1.30
+        vddio = 1.40
+
+    if kit == "2x32GB" and rank == "Dual Rank" and target_frequency < 6000:
+        vddio += 0.03
+    if voltage_policy == "保守":
+        vddio -= 0.03
+    elif voltage_policy == "激进":
+        vddio += 0.02
+        if target_frequency >= 6400:
+            vsoc = 1.30
+
+    if cooling == "无风扇":
+        vddio = min(vddio, 1.35)
+    vsoc = min(vsoc, 1.30)
+
+    risk = {
+        "VSOC": _voltage_risk(vsoc, 1.25, 1.30),
+        "CPU VDDIO": _voltage_risk(vddio, 1.35, 1.40),
+        "VDDP": "正常",
+        "VDDG CCD": "正常",
+        "VDDG IOD": "正常",
+    }
+    reasons: list[str] = []
+    if vsoc >= 1.30:
+        reasons.append("VSOC at 1.30V is the AM5 hard ceiling.")
+    if target_frequency >= 6600 and kit == "2x32GB":
+        reasons.append("6600+ is high risk for AM5 2x32GB daily use.")
+    return {
+        "VSOC": _format_v(vsoc),
+        "CPU VDDIO": _format_v(vddio),
+        "VDDP": "Auto / 1.05V",
+        "VDDG CCD": "Auto",
+        "VDDG IOD": "Auto",
+        "risk": risk,
+        "reasons": reasons,
+    }
+
+
 def calculate_hynix_adie_2x32_voltages(config: InputConfig) -> tuple[list[VoltageEntry], list[str]]:
     warnings: list[str] = []
     freq = config.target_frequency
@@ -137,41 +205,45 @@ def calculate_hynix_adie_2x32_voltages(config: InputConfig) -> tuple[list[Voltag
     if config.platform == "AMD AM5":
         if freq <= 5600:
             dram = 1.33
-            vddio = 1.25
-            vsoc = 1.18
-            vddp = "Auto / 0.95-1.05V"
         elif freq <= 6000:
             dram = 1.38
-            vddio = 1.30
-            vsoc = 1.25
-            vddp = "Auto / 1.05V"
         elif freq <= 6200:
             dram = 1.40
-            vddio = 1.35
-            vsoc = 1.28
-            vddp = "Auto / 1.05V"
         else:
-            dram = 1.44
-            vddio = 1.40
-            vsoc = 1.30
-            vddp = "Auto / 1.05V"
+            dram = 1.42
 
-        dram += _strategy_delta(config.voltage_strategy)
+        if config.voltage_strategy == "保守":
+            dram -= 0.02
+        elif config.voltage_strategy == "激进" and freq >= 6400:
+            dram += 0.03
         if config.tuning_style == "Safe":
             dram -= 0.02
-        if config.tuning_style == "Benchmark":
-            dram += 0.02
-        dram, thermal_warnings = apply_thermal_voltage_limit(config, dram)
-        warnings.extend(thermal_warnings)
-        if vsoc > 1.30:
-            warnings.append("VSOC 高于 1.30V 会显著提高 AM5 日用风险。")
+        if config.cooling == "无风扇":
+            dram = min(dram, 1.40)
+        elif config.cooling == "机箱风道":
+            dram = min(dram, 1.42 if freq >= 6400 else 1.40)
+        else:
+            dram = min(dram, 1.45)
+
+        cpu_voltages = calculate_am5_cpu_voltages(
+            config.cpu_model,
+            freq,
+            config.kit,
+            config.rank,
+            config.cooling,
+            config.voltage_strategy,
+        )
+        warnings.extend(str(reason) for reason in cpu_voltages["reasons"])
+        cpu_risk = cpu_voltages["risk"]
 
         entries = [
-            VoltageEntry("DRAM VDD", _format_v(dram), "2x32GB A-die 专用 DRAM 核心电压。", "偏高" if dram > 1.40 else "正常"),
-            VoltageEntry("DRAM VDDQ", _format_v(dram), "2x32GB A-die 专用 DRAM I/O 电压。", "偏高" if dram > 1.40 else "正常"),
-            VoltageEntry("CPU VDDIO / VDDIO MEM", _format_v(vddio), "AM5 2x32GB 训练和 IMC 稳定相关电压。", "偏高" if vddio > 1.40 else "正常"),
-            VoltageEntry("VSOC", _format_v(vsoc), "AM5 2x32GB 日用建议控制在 1.30V 以内。", "偏高" if vsoc >= 1.30 else "正常"),
-            VoltageEntry("VDDP", vddp, "普通用户保持 Auto 或按区间低端开始。", "正常"),
+            VoltageEntry("DRAM VDD", _format_v(dram), "2x32GB A-die：6000 1.38V，6200 1.40V，6400 1.42V 起步。", _voltage_risk(dram, 1.40, 1.45)),
+            VoltageEntry("DRAM VDDQ", _format_v(dram), "通常跟随 DRAM VDD。", _voltage_risk(dram, 1.40, 1.45)),
+            VoltageEntry("CPU VDDIO / VDDIO MEM", str(cpu_voltages["CPU VDDIO"]), "影响 CPU 内存 I/O 和训练稳定性。", str(cpu_risk["CPU VDDIO"])),
+            VoltageEntry("VSOC", str(cpu_voltages["VSOC"]), "AM5 日用推荐 1.20-1.25V，程序硬上限 1.30V。", str(cpu_risk["VSOC"])),
+            VoltageEntry("VDDP", str(cpu_voltages["VDDP"]), "PHY / 内存训练相关电压，默认 Auto / 1.05V。", str(cpu_risk["VDDP"])),
+            VoltageEntry("VDDG CCD", str(cpu_voltages["VDDG CCD"]), "Fabric / CCD 相关电压，新手优先 Auto。", str(cpu_risk["VDDG CCD"])),
+            VoltageEntry("VDDG IOD", str(cpu_voltages["VDDG IOD"]), "Fabric / IOD 相关电压，新手优先 Auto。", str(cpu_risk["VDDG IOD"])),
             VoltageEntry("VPP", "Auto / 1.80V", "普通用户保持 Auto 或 1.80V。", "正常"),
         ]
         return entries, warnings

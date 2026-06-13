@@ -93,6 +93,50 @@ def thermal_refresh_risk(
     return score, explanations
 
 
+def cpu_voltage_risk(config: InputConfig, voltages: list[VoltageEntry]) -> tuple[int, list[str]]:
+    score = 0
+    explanations: list[str] = []
+    values = {voltage.name: _voltage_float(voltage.value) for voltage in voltages}
+    vddio = values.get("CPU VDDIO / VDDIO MEM") or values.get("CPU VDDIO")
+    vsoc = values.get("VSOC")
+    vddp = values.get("VDDP")
+    vddg_ccd = values.get("VDDG CCD")
+    vddg_iod = values.get("VDDG IOD")
+    dram_vdd = values.get("DRAM VDD")
+
+    if vsoc is not None and vsoc > 1.25:
+        score += 8
+        explanations.append("VSOC 高于 1.25V，AM5 日用风险上升。")
+    if vsoc is not None and vsoc > 1.30:
+        score += 30
+        explanations.append("VSOC above 1.30V is high risk on AM5. Use 1.20-1.25V for daily.")
+    if vddio is not None and vddio > 1.35:
+        score += 10
+        explanations.append("CPU VDDIO 高于 1.35V，IMC 和温度风险上升。")
+    if vddio is not None and vddio > 1.40:
+        score += 20
+        explanations.append("CPU VDDIO 高于 1.40V，属于高风险范围。")
+    if vddp is not None and vddp > 1.10:
+        score += 10
+        explanations.append("VDDP 高于 1.10V，建议回到 Auto 或 0.95-1.05V。")
+    if vddg_ccd is not None and vddg_ccd > 1.10:
+        score += 10
+        explanations.append("VDDG CCD 高于 1.10V，Fabric 稳定风险上升。")
+    if vddg_iod is not None and vddg_iod > 1.10:
+        score += 10
+        explanations.append("VDDG IOD 高于 1.10V，IOD 稳定风险上升。")
+    if config.target_frequency >= 6400 and is_dual_rank(config) and config.kit == "2x32GB":
+        score += 25
+        explanations.append("Target 6400 + 2x32GB Dual Rank 需要更强 IMC、BIOS 和散热。")
+    elif config.target_frequency >= 6200 and is_dual_rank(config) and config.kit == "2x32GB":
+        score += 10
+        explanations.append("Target 6200 + 2x32GB Dual Rank 属于进阶验证。")
+    if dram_vdd is not None and config.cooling == "无风扇" and dram_vdd > 1.40:
+        score += 10
+        explanations.append("无主动内存风扇且 DRAM VDD 高于 1.40V。")
+    return score, explanations
+
+
 def calculate_risk(
     config: InputConfig,
     voltages: list[VoltageEntry],
@@ -138,6 +182,10 @@ def calculate_risk(
         if voltage.name == "VSOC" and value > 1.30:
             score += 20
             explanations.append("VSOC 高于 1.30V。")
+
+    voltage_score, voltage_explanations = cpu_voltage_risk(config, voltages)
+    score += voltage_score
+    explanations.extend(voltage_explanations)
 
     if config.temperature_limit > 50:
         score += 15

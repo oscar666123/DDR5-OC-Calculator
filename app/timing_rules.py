@@ -7,6 +7,7 @@ from typing import Any
 
 from app.models import InputConfig, MemoryProfile, RecommendationResult, TimingEntry
 from app.presets import BASE_TUNING_ADVICE, HYNIX_ADIE_2X32_AM5_PRESETS, HYNIX_ADIE_2X32_INTEL_PRESETS, STABILITY_STEPS
+from app.presets import HYNIX_ADIE_2X32_DISPLAY, HYNIX_ADIE_2X32_INTERNAL
 from app.reference_notes import get_reference_notes
 from app.validators import (
     is_dual_rank,
@@ -175,13 +176,17 @@ def _entry(name: str, cycles: int, mt_s: int, note: str, risk: str = "正常") -
 
 
 def _hynix_adie_2x32_profile(config: InputConfig) -> MemoryProfile:
+    display_name = HYNIX_ADIE_2X32_DISPLAY if config.kit == "2x32GB" else "Hynix A-die 4x32GB High Risk"
     return MemoryProfile(
-        name="Hynix 16Gb A-die 2x32GB Dual Rank" if config.kit == "2x32GB" else "Hynix 16Gb A-die 4x32GB High Risk",
+        name=HYNIX_ADIE_2X32_INTERNAL if config.kit == "2x32GB" else "Hynix 16Gb A-die 4x32GB High Risk",
+        display_name=display_name,
         platform_focus="AMD AM5 preferred, Intel DDR5 supported",
         total_capacity=config.total_capacity,
         module_capacity=config.module_capacity,
         rank=config.rank,
         side="Double Sided",
+        ic_vendor="SK hynix",
+        ic_type="A-die",
         ic_density=config.ic_density,
         profile_type=config.profile_type,
         daily_target=6000 if config.platform == "AMD AM5" else 6400,
@@ -328,7 +333,7 @@ def calculate_hynix_adie_2x32_timings(config: InputConfig) -> RecommendationResu
         config=config,
         frequency=_frequency_block(config),
         profile=profile,
-        reference_notes=get_reference_notes(profile.name),
+        reference_notes=get_reference_notes(profile.display_name),
         primary=primary,
         secondary=secondary,
         tertiary=tertiary,
@@ -441,9 +446,11 @@ def recommendation_to_bios_fields(result: RecommendationResult) -> dict[str, str
     if config.platform == "AMD AM5":
         fields["UCLK"] = str(config.target_frequency // 2)
         fields["FCLK"] = "2000" if config.target_frequency <= 6000 else "2066" if config.target_frequency <= 6200 else "2133"
+        fields["Gear / Ratio"] = "UCLK=MCLK"
     else:
         fields["UCLK"] = "Auto"
         fields["FCLK"] = "Auto"
+        fields["Gear / Ratio"] = "Gear 2"
 
     for entry in result.primary + result.secondary + result.tertiary:
         fields[entry.name] = str(entry.cycles)

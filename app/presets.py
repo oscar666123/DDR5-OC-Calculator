@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 PLATFORMS = ["AMD AM5", "Intel DDR5"]
-MEMORY_ICS = ["Hynix A-die", "Hynix 16Gb A-die 2x32GB Dual Rank", "Hynix M-die"]
+HYNIX_ADIE_2X32_DISPLAY = "Hynix A-die 2x32GB Dual Rank"
+HYNIX_ADIE_2X32_INTERNAL = "Hynix 16Gb A-die 2x32GB Dual Rank"
+
+MEMORY_ICS = ["Hynix A-die", HYNIX_ADIE_2X32_DISPLAY, "Hynix M-die"]
 DIE_TYPES = ["16Gb A-die", "16Gb M-die", "24Gb M-die"]
 KITS = ["2x16GB", "2x24GB", "2x32GB", "4x16GB", "4x24GB", "4x32GB"]
 DIMM_CAPACITIES = ["16GB", "24GB", "32GB"]

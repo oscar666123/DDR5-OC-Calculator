@@ -28,9 +28,17 @@ class InputConfig:
     voltage_strategy: str = "正常"
     total_capacity: str = "32GB"
     module_capacity: str = "16GB"
+    profile_display_name: str = ""
+    ic_vendor: str = "SK hynix"
+    ic_type: str = "A-die"
     ic_density: str = "16Gb"
     profile_type: str = "1DPC 2 DIMM"
     rgb_memory: bool = False
+    vsoc: str = ""
+    cpu_vddio: str = ""
+    vddp: str = ""
+    vddg_ccd: str = ""
+    vddg_iod: str = ""
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -45,11 +53,14 @@ class InputConfig:
 @dataclass(slots=True)
 class MemoryProfile:
     name: str
+    display_name: str
     platform_focus: str
     total_capacity: str
     module_capacity: str
     rank: str
     side: str
+    ic_vendor: str
+    ic_type: str
     ic_density: str
     profile_type: str
     daily_target: int

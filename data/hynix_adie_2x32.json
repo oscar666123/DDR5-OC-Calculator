@@ -1,5 +1,6 @@
 {
-  "profile": "Hynix 16Gb A-die 2x32GB Dual Rank",
+  "profile_display_name": "Hynix A-die 2x32GB Dual Rank",
+  "internal_profile": "Hynix 16Gb A-die 2x32GB Dual Rank",
   "daily_target": 6000,
   "rank": "Dual Rank",
   "side": "Double Sided",

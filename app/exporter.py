@@ -6,16 +6,21 @@ from app.models import InputConfig, RecommendationResult
 
 
 FIELD_SECTIONS = {
-    "Frequency / Voltage": [
+    "Frequency": [
         "Memory Frequency",
         "MCLK",
         "UCLK",
         "FCLK",
+        "Gear / Ratio",
+    ],
+    "CPU / DRAM Voltage": [
         "DRAM VDD",
         "DRAM VDDQ",
         "CPU VDDIO",
         "VSOC",
         "VDDP",
+        "VDDG CCD",
+        "VDDG IOD",
         "VPP",
     ],
     "Primary Timings": ["tCL", "tRCD", "tRP", "tRAS", "tRC", "tCWL"],
@@ -52,6 +57,7 @@ def fields_to_text(fields: dict[str, str]) -> str:
     for section, names in FIELD_SECTIONS.items():
         if lines:
             lines.append("")
+        lines.append(f"[{section}]")
         for name in names:
             if name in fields:
                 lines.append(f"{name} = {fields[name]}")
@@ -67,6 +73,10 @@ def fields_to_json_dict(
     return {
         "config": config.to_dict(),
         "profile": result.profile.name if result and result.profile else config.memory_ic,
+        "profile_display_name": result.profile.display_name if result and result.profile else config.profile_display_name or config.memory_ic,
+        "ic_vendor": result.profile.ic_vendor if result and result.profile else config.ic_vendor,
+        "ic_type": result.profile.ic_type if result and result.profile else config.ic_type,
+        "ic_density": result.profile.ic_density if result and result.profile else config.ic_density,
         "risk": {
             "score": result.risk_score if result else 0,
             "level": result.risk_level if result else "Unknown",

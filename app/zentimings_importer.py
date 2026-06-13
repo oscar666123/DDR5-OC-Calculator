@@ -28,9 +28,15 @@ FIELD_ALIASES = {
     "tRRD_L": "tRRD_L",
     "tFAW": "tFAW",
     "VSOC": "VSOC",
+    "VDDCR_SOC": "VSOC",
     "VDD": "DRAM VDD",
     "VDDQ": "DRAM VDDQ",
-    "VDDIO": "CPU VDDIO / VDDIO MEM",
+    "VDDIO": "CPU VDDIO",
+    "CPUVDDIO": "CPU VDDIO",
+    "VDDGCCD": "VDDG CCD",
+    "VDDG_CCD": "VDDG CCD",
+    "VDDGIOD": "VDDG IOD",
+    "VDDG_IOD": "VDDG IOD",
 }
 
 
