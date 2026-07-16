@@ -39,6 +39,9 @@ class InputConfig:
     vddp: str = ""
     vddg_ccd: str = ""
     vddg_iod: str = ""
+    requested_frequency: int = 0
+    thermal_confirmed: bool = False
+    current_parameters: dict[str, str] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -139,6 +142,11 @@ class HardwareInfo:
     kit_type: str = ""
     is_ddr5: bool = False
     detection_error: str = ""
+    ic_profile: str = ""
+    ic_source: str = ""
+    ic_confidence: str = "unknown"
+    memory_temperature_c: float | None = None
+    thermal_source: str = "Manual"
 
     def memory_summary(self) -> str:
         if self.total_capacity_gb and self.kit_type:

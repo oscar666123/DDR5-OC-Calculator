@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from app.models import InputConfig
-from app.presets import HYNIX_ADIE_2X32_DISPLAY, HYNIX_ADIE_2X32_INTERNAL
+from app.presets import HYNIX_ADIE_2X32_DISPLAY, HYNIX_ADIE_2X32_INTERNAL, UNKNOWN_IC_PROFILE
 
 
 class ValidationError(ValueError):
@@ -20,6 +20,10 @@ def parse_frequency(value: str) -> int:
 
 
 def normalize_config(config: InputConfig) -> InputConfig:
+    config.requested_frequency = config.target_frequency
+    if config.memory_ic == UNKNOWN_IC_PROFILE:
+        return config
+
     if config.memory_ic in {HYNIX_ADIE_2X32_DISPLAY, HYNIX_ADIE_2X32_INTERNAL} and config.kit != "4x32GB":
         config.die_type = "16Gb A-die"
         config.kit = "2x32GB"
@@ -76,6 +80,8 @@ def normalize_config(config: InputConfig) -> InputConfig:
 
 
 def validate_config(config: InputConfig) -> None:
+    if config.memory_ic == UNKNOWN_IC_PROFILE:
+        raise ValidationError("IC profile requires manual selection before calculation.")
     integer_fields = {
         "当前 XMP/EXPO 频率": config.xmp_frequency,
         "XMP tCL": config.xmp_tcl,

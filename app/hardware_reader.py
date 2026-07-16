@@ -145,4 +145,13 @@ def read_system_hardware() -> HardwareInfo:
         info.is_ddr5 = is_ddr5
 
     info.detection_error = "; ".join(errors)
+    temperature_data, _ = _run_powershell(
+        "Get-CimInstance MSAcpi_ThermalZoneTemperature -ErrorAction SilentlyContinue | Select-Object CurrentTemperature"
+    )
+    if temperature_data:
+        temperature = _listify(temperature_data)[0]
+        raw_temperature = _int_value(temperature.get("CurrentTemperature"))
+        if raw_temperature > 2732:
+            info.memory_temperature_c = round(raw_temperature / 10 - 273.15, 1)
+            info.thermal_source = "ACPI thermal zone"
     return info

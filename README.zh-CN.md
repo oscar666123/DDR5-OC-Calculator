@@ -26,6 +26,12 @@ python -m pip install -r requirements.txt
 python main.py
 ```
 
+运行回归测试：
+
+```bat
+python -m unittest discover -s tests -v
+```
+
 ## 打包
 
 ```bat
@@ -40,6 +46,8 @@ dist\DDR5OCCalculator\DDR5OCCalculator.exe
 release\DDR5OCCalculator-windows-x64.zip
 ```
 
+v0.4.0 发布包文件名为 `release\DDR5OCCalculator-v0.4.0-windows-x64.zip`。
+
 ## 自动读取
 
 程序使用 PowerShell `Get-CimInstance` 读取：
@@ -49,11 +57,11 @@ release\DDR5OCCalculator-windows-x64.zip
 - `Win32_BIOS`
 - `Win32_PhysicalMemory`
 
-读取失败时，顶部字段会显示“自动读取失败，可手动填写”。平台、套条、目标频率和 IC Profile 均可手动选择。
+读取失败时，顶部字段会显示“自动读取失败，可手动填写”。平台、套条、目标频率和 IC Profile 均可手动选择。Part Number 推断失败会进入 `Unknown / Manual Selection`，人工确认 IC 后才允许计算专用 profile。
 
 ## ZenTimings 导入
 
-“导入 ZenTimings”支持 OCR 文本、TXT、CSV、JSON。程序会识别 MCLK、UCLK、FCLK、主时序、副时序和电压字段，并直接填入对应参数框。
+“导入 ZenTimings”支持 OCR 文本、TXT、CSV、JSON 和图片。图片 OCR 需要安装 Pillow、pytesseract 与本机 Tesseract，并将导入值标记为 `ZenTimings` 来源。6200+ 的 2x32GB AM5 方案会把“散热已确认”纳入风险提示；该勾选表示人工确认风道和温度条件。
 
 ## 支持范围
 
@@ -99,6 +107,10 @@ VSOC = 1.25V
 ## 使用建议
 
 2x32GB Dual Rank 优先关注 tRFC、tREFI 和温度。6200 需要更好 IMC，6400 属于高风险。出错时优先回退 tRFC、tREFI、VDDIO、VSOC。
+
+程序会区分 `requested_frequency` 与 `effective_frequency`。AM5 2x32GB 目标超过 6400 时，状态栏会显示实际回退目标，例如 `6600 -> 6200`。
+
+导入的 ZenTimings 当前值会在“测试建议”页保留为只读对照区，计算出的 BIOS 推荐值继续显示在参数编辑框中。
 
 ## 作者
 

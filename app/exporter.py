@@ -69,6 +69,7 @@ def fields_to_json_dict(
     fields: dict[str, str],
     result: RecommendationResult | None,
     suggestions: list[str],
+    parameter_sources: dict[str, str] | None = None,
 ) -> dict[str, Any]:
     return {
         "config": config.to_dict(),
@@ -83,5 +84,7 @@ def fields_to_json_dict(
             "reasons": result.risk_explanations[:5] if result else [],
         },
         "bios_parameters": fields,
+        "current_parameters": config.current_parameters,
+        "parameter_sources": parameter_sources or {},
         "suggestions": suggestions,
     }

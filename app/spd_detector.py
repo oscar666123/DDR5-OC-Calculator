@@ -18,3 +18,18 @@ def infer_ic_profile(part_numbers: list[str]) -> str:
             if key.upper() in part:
                 return str(profile)
     return ""
+
+
+def infer_ic_profile_info(part_numbers: list[str]) -> dict[str, str]:
+    profile = infer_ic_profile(part_numbers)
+    if profile:
+        return {
+            "profile": profile,
+            "source": "Part Number DB",
+            "confidence": "medium",
+        }
+    return {
+        "profile": "",
+        "source": "Manual Selection",
+        "confidence": "unknown",
+    }

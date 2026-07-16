@@ -27,6 +27,12 @@ python -m pip install -r requirements.txt
 python main.py
 ```
 
+Run regression tests:
+
+```bat
+python -m unittest discover -s tests -v
+```
+
 ## Build
 
 ```bat
@@ -41,6 +47,8 @@ dist\DDR5OCCalculator\DDR5OCCalculator.exe
 release\DDR5OCCalculator-windows-x64.zip
 ```
 
+The v0.4.0 release package is `release\DDR5OCCalculator-v0.4.0-windows-x64.zip`.
+
 ## Automatic Detection
 
 The app uses PowerShell `Get-CimInstance` to read:
@@ -50,11 +58,11 @@ The app uses PowerShell `Get-CimInstance` to read:
 - `Win32_BIOS`
 - `Win32_PhysicalMemory`
 
-If detection fails, the top fields show fallback text and remain manually editable. Platform, kit type, target frequency, and IC profile can be selected manually.
+If detection fails, the top fields show fallback text and remain manually editable. Platform, kit type, target frequency, and IC profile can be selected manually. A Part Number miss enters `Unknown / Manual Selection`, and manual IC confirmation is required before a dedicated profile can be calculated.
 
 ## ZenTimings Import
 
-The “Import ZenTimings” action accepts OCR text, TXT, CSV, and JSON. It parses MCLK, UCLK, FCLK, primary timings, secondary timings, and voltages, then fills matching BIOS parameter fields.
+The “Import ZenTimings” action accepts OCR text, TXT, CSV, JSON, and images. Image OCR requires Pillow, pytesseract, and a local Tesseract installation. Imported fields receive a `ZenTimings` source marker. For AM5 2x32GB targets at 6200+, the `Thermal confirmed` checkbox contributes to the risk notice and records manual confirmation of airflow and temperature conditions.
 
 ## Supported Scope
 
@@ -100,6 +108,10 @@ VSOC = 1.25V
 ## Recommendation
 
 For 2x32GB Dual Rank, focus on tRFC, tREFI, and DIMM temperature. 6200 requires a stronger IMC, and 6400 is high risk. Roll back tRFC, tREFI, VDDIO, and VSOC first when errors appear.
+
+The application separates `requested_frequency` from `effective_frequency`. AM5 2x32GB targets above 6400 roll back to a supported target, and the status bar shows the transition such as `6600 -> 6200`.
+
+Imported ZenTimings current values remain in a read-only comparison area on the Test Advice tab while calculated BIOS recommendations remain in the editable parameter fields.
 
 ## Author
 

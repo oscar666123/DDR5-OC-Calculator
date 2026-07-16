@@ -38,6 +38,7 @@ FIELD_ALIASES = {
     "VDDGIOD": "VDDG IOD",
     "VDDG_IOD": "VDDG IOD",
 }
+IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg", ".bmp", ".webp"}
 
 
 def _clean_value(value: object) -> str:
@@ -70,4 +71,16 @@ def parse_zentimings_text(text: str) -> dict[str, str]:
 
 
 def import_zentimings_file(path: str | Path) -> dict[str, str]:
-    return parse_zentimings_text(Path(path).read_text(encoding="utf-8", errors="ignore"))
+    file_path = Path(path)
+    if file_path.suffix.lower() in IMAGE_SUFFIXES:
+        try:
+            from PIL import Image
+            import pytesseract
+        except ImportError as exc:
+            raise RuntimeError("Image OCR requires Pillow, pytesseract, and a local Tesseract installation.") from exc
+        try:
+            text = pytesseract.image_to_string(Image.open(file_path))
+        except Exception as exc:
+            raise RuntimeError(f"Image OCR failed: {exc}") from exc
+        return parse_zentimings_text(text)
+    return parse_zentimings_text(file_path.read_text(encoding="utf-8", errors="ignore"))

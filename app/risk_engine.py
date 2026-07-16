@@ -134,6 +134,9 @@ def cpu_voltage_risk(config: InputConfig, voltages: list[VoltageEntry]) -> tuple
     if dram_vdd is not None and config.cooling == "无风扇" and dram_vdd > 1.40:
         score += 10
         explanations.append("无主动内存风扇且 DRAM VDD 高于 1.40V。")
+    if config.platform == "AMD AM5" and config.kit == "2x32GB" and config.target_frequency >= 6200 and not config.thermal_confirmed:
+        score += 8
+        explanations.append("6200+ 2x32GB 方案尚未确认内存散热，请先验证风道、温度和长时间稳定性。")
     return score, explanations
 
 
